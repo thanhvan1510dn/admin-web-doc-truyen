@@ -9,8 +9,8 @@ interface AdminLoginPageProps {
 
 export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess }) => {
   const toast = useToast();
-  const [username, setUsername] = useState("admin");
-  const [password, setPassword] = useState("admin123");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -87,7 +87,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess }
                 setUsername(e.target.value);
                 setErrorMsg("");
               }}
-              placeholder="admin"
+              placeholder="Nhập tài khoản..."
               className="w-full px-3 py-2 rounded-lg border border-zinc-200 bg-zinc-50 text-xs font-medium text-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-400"
               required
               autoFocus
@@ -106,7 +106,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess }
                   setPassword(e.target.value);
                   setErrorMsg("");
                 }}
-                placeholder="admin123"
+                placeholder="Nhập mật khẩu..."
                 className="w-full pl-3 pr-9 py-2 rounded-lg border border-zinc-200 bg-zinc-50 text-xs font-medium text-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-400"
                 required
               />
@@ -140,20 +140,6 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess }
             <span>{loading ? "Đang xử lý..." : "Đăng nhập"}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
-
-          <div className="pt-2 border-t border-zinc-100 text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setUsername("admin");
-                setPassword("admin123");
-                setErrorMsg("");
-              }}
-              className="text-[11px] text-zinc-500 hover:text-zinc-900 font-mono"
-            >
-              admin / admin123 (Điền nhanh)
-            </button>
-          </div>
         </form>
       </div>
 
