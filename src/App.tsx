@@ -7,7 +7,7 @@ import { AdminStoryDetailView } from "./components/admin/AdminStoryDetailView";
 import { AdminLoginPage } from "./components/auth/AdminLoginPage";
 import { authApi } from "./api";
 
-const USER_WEB_URL = import.meta.env.VITE_USER_WEB_URL || "https://web-doc-truyen.vercel.app";
+const USER_WEB_URL = import.meta.env.VITE_USER_WEB_URL || "https://web-doc-truyen-theta.vercel.app";
 
 export const AdminAppContent: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(authApi.isAuthenticated());
