@@ -1,4 +1,3 @@
-import { AdminSyncModal } from "./AdminSyncModal";
 import React, { useState, useEffect } from "react";
 import { 
   BarChart3, BookOpen, ExternalLink, Menu, X, 
@@ -26,7 +25,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
 }) => {
   const toast = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [syncModalOpen, setSyncModalOpen] = useState(false);
   const currentUser = authApi.getCurrentUser();
 
   useEffect(() => {
@@ -124,22 +122,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
 
         {/* Footer Actions */}
         <div className="pt-4 border-t border-zinc-200 space-y-1.5">
-          
-          <button
-            onClick={() => setSyncModalOpen(true)}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 transition-all"
-          >
-            <div className="flex items-center gap-2.5">
-              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-              <span>Đồng bộ & Xuất mã</span>
-            </div>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-200/60 text-amber-800 font-bold">
-              Sync
-            </span>
-          </button>
           <button
             onClick={onNavigateToUserWeb}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 transition-all"
+            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-zinc-700 bg-zinc-100/80 hover:bg-zinc-200/70 hover:text-zinc-900 transition-all"
           >
             <div className="flex items-center gap-2.5">
               <ExternalLink className="w-4 h-4" />
@@ -221,7 +206,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           {children}
         </main>
       </div>
-      <AdminSyncModal isOpen={syncModalOpen} onClose={() => setSyncModalOpen(false)} />
     </div>
   );
 };

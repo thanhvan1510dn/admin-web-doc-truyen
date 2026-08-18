@@ -7,7 +7,15 @@ import { AdminStoryDetailView } from "./components/admin/AdminStoryDetailView";
 import { AdminLoginPage } from "./components/auth/AdminLoginPage";
 import { authApi } from "./api";
 
-const USER_WEB_URL = import.meta.env.VITE_USER_WEB_URL || "https://web-doc-truyen-theta.vercel.app";
+const getUserWebBaseUrl = () => {
+  if (typeof window !== "undefined") {
+    const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (isLocalhost) {
+      return "http://localhost:5173";
+    }
+  }
+  return "https://web-doc-truyen-theta.vercel.app";
+};
 
 export const AdminAppContent: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(authApi.isAuthenticated());
@@ -23,11 +31,12 @@ export const AdminAppContent: React.FC = () => {
   }, []);
 
   const handleOpenUserWeb = (storyId?: string, chapterId?: string) => {
-    let targetUrl = USER_WEB_URL;
+    const baseUrl = getUserWebBaseUrl();
+    let targetUrl = baseUrl;
     if (storyId && chapterId) {
-      targetUrl = `${USER_WEB_URL}?story=${storyId}&chapter=${chapterId}`;
+      targetUrl = `${baseUrl}?story=${storyId}&chapter=${chapterId}`;
     } else if (storyId) {
-      targetUrl = `${USER_WEB_URL}?story=${storyId}`;
+      targetUrl = `${baseUrl}?story=${storyId}`;
     }
     window.open(targetUrl, "_blank", "noopener,noreferrer");
   };
