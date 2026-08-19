@@ -186,31 +186,29 @@ export class DocumentParserService {
 
     const isMajorTab = (line: string): string | null => {
       const trimmed = normalizeLine(line);
-      if (!trimmed || trimmed.length > 120) return null;
+      if (!trimmed || trimmed.length > 100) return null;
 
-      // Pattern 1: (2376-2378) or (2379-2416) Realm title / Range
-      const rangeMatch = trimmed.match(/^\s*\(?\s*(\d+)\s*[-–—]\s*(\d+)\s*\)?\s*(.*)$/i);
+      // 1. Strict Range: (2376-2378) or [2376-2378] or (2379-2416) Realm title
+      const rangeMatch = trimmed.match(/^\s*[\(\[]\s*(\d{1,5})\s*[-–—]\s*(\d{1,5})\s*[\)\]](?:\s*[:\-\._\s]?\s*(.*))?$/i);
       if (rangeMatch) {
-        if (!trimmed.toLowerCase().startsWith("chương") && !trimmed.toLowerCase().startsWith("chuong")) {
-          return trimmed.replace(/^[\(\[]/, "(").replace(/[\)\]]$/, ")");
+        const from = parseInt(rangeMatch[1], 10);
+        const to = parseInt(rangeMatch[2], 10);
+        if (to >= from && to - from <= 500) {
+          const titleExtra = rangeMatch[3] ? " " + rangeMatch[3].trim() : "";
+          return `(${from}-${to})${titleExtra}`;
         }
       }
 
-      // Pattern 2: [Mục lục...] or === Mục lục === or 【Mục lục...】
-      const bracketMatch = trimmed.match(/^【([^】]+)】$/) || trimmed.match(/^===\s*([^=]+)\s*===$/) || trimmed.match(/^\[([^\]]+)\]$/);
-      if (bracketMatch && !bracketMatch[1].toLowerCase().includes("chương") && !bracketMatch[1].toLowerCase().includes("chuong")) {
-        return bracketMatch[1].trim();
-      }
-
-      // Pattern 3: Mục lục 1, Quyển 1, Vị diện 1, Arc 1, Tập 1
-      const sectionMatch = trimmed.match(/^(?:Mục lục|Muc luc|Quyển|Quyen|Tập|Tap|Phần|Phan|Vị [Dd]iện|Vi [Dd]ien|Arc)\s+(\d+|[IVXLCDM]+|[A-Za-zÀ-ỹ0-9\s]{1,40})[:\-\._\s]?(.*)$/i);
-      if (sectionMatch && !trimmed.toLowerCase().includes("chương") && !trimmed.toLowerCase().includes("chuong")) {
+      // 2. Strict Keyword + Number: Quyển 1, Mục lục 2, Tập 3, Phần 4, Arc 5, Vol 6
+      const keywordMatch = trimmed.match(/^(?:Quyển|Quyen|Mục\s*lục|Muc\s*luc|Tập|Tap|Phần|Phan|Arc|Vol(?:ume)?\.?)\s+(\d+|[IVXLCDM]+)(?:[:\-\._\s]+(.*))?$/i);
+      if (keywordMatch) {
         return trimmed;
       }
 
-      // Pattern 4: Markdown # Heading (without chapter keyword)
-      if (trimmed.startsWith("# ") && !trimmed.toLowerCase().includes("chương") && !trimmed.toLowerCase().includes("chuong")) {
-        return trimmed.replace(/^#\s+/, "").trim();
+      // 3. Strict Bracketed Volume: 【Quyển 1: ...】 or [Mục lục 2: ...]
+      const bracketMatch = trimmed.match(/^[【\[]\s*(?:Quyển|Quyen|Mục\s*lục|Muc\s*luc|Tập|Tap|Phần|Phan|Vol)\s*(\d+|[IVXLCDM]+)(?:[:\-\._\s]+(.*))?[】\]]$/i);
+      if (bracketMatch) {
+        return trimmed.replace(/^[【\[]/, "").replace(/[】\]]$/, "").trim();
       }
 
       return null;
