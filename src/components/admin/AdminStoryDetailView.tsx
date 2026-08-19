@@ -146,8 +146,6 @@ export const AdminStoryDetailView: React.FC<AdminStoryDetailViewProps> = ({
     );
   }
 
-  const totalChaptersCount = story.volumes.reduce((acc, v) => acc + v.chapters.length, 0);
-
   return (
     <div className="space-y-6">
       {/* Top Breadcrumb & Actions */}
@@ -367,7 +365,7 @@ export const AdminStoryDetailView: React.FC<AdminStoryDetailViewProps> = ({
               Cấu trúc Mục lục & Danh sách Chương
             </h3>
             <span className="text-xs text-zinc-500 font-medium">
-              Tổng cộng: {story.volumes.length} mục lục / {totalChaptersCount} chương
+              Tổng cộng: {story.volumes.length} mục lục
             </span>
           </div>
 
@@ -417,7 +415,6 @@ export const AdminStoryDetailView: React.FC<AdminStoryDetailViewProps> = ({
                       </div>
 
                       <div className="flex items-center gap-2 text-xs font-mono text-zinc-500">
-                        <span>{volume.chapters.length} chương</span>
                         <button
                           type="button"
                           onClick={(e) => {
@@ -454,10 +451,6 @@ export const AdminStoryDetailView: React.FC<AdminStoryDetailViewProps> = ({
                               </div>
 
                               <div className="flex items-center gap-1.5 flex-shrink-0">
-                                <span className="text-[11px] text-zinc-400 font-mono mr-2 hidden sm:inline">
-                                  {chapter.wordCount || 0} từ
-                                </span>
-
                                 {/* Status Toggle */}
                                 <button
                                   type="button"

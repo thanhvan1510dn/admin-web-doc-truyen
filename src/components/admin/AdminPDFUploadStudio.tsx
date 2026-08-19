@@ -364,7 +364,7 @@ export const AdminPDFUploadStudio: React.FC<AdminPDFUploadStudioProps> = ({ stor
                   {selectedFile?.name}
                 </h4>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                  {parseResult.totalVolumes} Mục lục • {parseResult.totalChapters} Chương • {parseResult.totalWords.toLocaleString()} từ
+                  {parseResult.totalVolumes} Mục lục
                 </p>
               </div>
             </div>
@@ -376,7 +376,7 @@ export const AdminPDFUploadStudio: React.FC<AdminPDFUploadStudioProps> = ({ stor
                 disabled={isSaving}
                 className="px-4 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-900 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 disabled:opacity-50"
               >
-                <span>{isSaving ? "Đang lưu..." : `Lưu & Nạp ngay (${parseResult.totalChapters} chương)`}</span>
+                <span>{isSaving ? "Đang lưu..." : "Lưu & Nạp vào hệ thống"}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
 
@@ -667,9 +667,8 @@ export const AdminPDFUploadStudio: React.FC<AdminPDFUploadStudioProps> = ({ stor
 
                       <div 
                         onClick={() => toggleVolumeCollapse(volume.number)}
-                        className="flex items-center gap-2 text-zinc-400 dark:text-zinc-500 cursor-pointer text-[11px] font-mono"
+                        className="flex items-center text-zinc-400 dark:text-zinc-500 cursor-pointer"
                       >
-                        <span>{volume.chapters.length} chương</span>
                         {isCollapsed ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
                       </div>
                     </div>
@@ -690,11 +689,7 @@ export const AdminPDFUploadStudio: React.FC<AdminPDFUploadStudioProps> = ({ stor
                               </span>
                             </div>
 
-                            <div className="flex items-center gap-3 flex-shrink-0">
-                              <span className="text-[11px] text-zinc-400 font-mono">
-                                {chapter.wordCount.toLocaleString()} từ
-                              </span>
-
+                            <div className="flex items-center flex-shrink-0">
                               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 {idx > 0 && (
                                   <button
