@@ -186,29 +186,38 @@ export class DocumentParserService {
 
     const isMajorTab = (line: string): string | null => {
       const trimmed = normalizeLine(line);
-      if (!trimmed || trimmed.length > 100) return null;
+      if (!trimmed || trimmed.length > 120) return null;
 
-      // 1. Strict Range: (2376-2378) or [2376-2378] or (2379-2416) Realm title
-      const rangeMatch = trimmed.match(/^\s*[\(\[]\s*(\d{1,5})\s*[-–—]\s*(\d{1,5})\s*[\)\]](?:\s*[:\-\._\s]?\s*(.*))?$/i);
+      // Strip leading emojis, checkmarks, symbols (e.g. ✅, ✔️, ☑️, 🌸, 👑, ⭐, 📌, 🔹, 🔸, etc.)
+      // and bracketed indicators like [✅], [v], (v), [x]
+      const cleaned = trimmed
+        .replace(/^[\s\p{Emoji}\p{Extended_Pictographic}✔️☑️✅✓•*~_\-]{1,15}\s*/u, "")
+        .replace(/^[【\[\(]\s*[✔️☑️✅✓vxX\-*•]\s*[】\]\)]\s*/u, "")
+        .trim();
+
+      const targetStr = cleaned.length > 0 ? cleaned : trimmed;
+
+      // 1. Chapter Range: (2904-2934), [2904-2934], 【2904-2934】 with optional title
+      const rangeMatch = targetStr.match(/^(?:[\(\[【]\s*)?(\d{1,5})\s*[-–—~至到]\s*(\d{1,5})(?:\s*[\)\]】])?(?:\s*[:\-\._]?\s*(.*))?$/i);
       if (rangeMatch) {
         const from = parseInt(rangeMatch[1], 10);
         const to = parseInt(rangeMatch[2], 10);
-        if (to >= from && to - from <= 500) {
-          const titleExtra = rangeMatch[3] ? " " + rangeMatch[3].trim() : "";
-          return `(${from}-${to})${titleExtra}`;
+        if (to >= from && to - from <= 800) {
+          const extra = rangeMatch[3] ? " " + rangeMatch[3].trim() : "";
+          return `(${from}-${to})${extra}`;
         }
       }
 
-      // 2. Strict Keyword + Number: Quyển 1, Mục lục 2, Tập 3, Phần 4, Arc 5, Vol 6
-      const keywordMatch = trimmed.match(/^(?:Quyển|Quyen|Mục\s*lục|Muc\s*luc|Tập|Tap|Phần|Phan|Arc|Vol(?:ume)?\.?)\s+(\d+|[IVXLCDM]+)(?:[:\-\._\s]+(.*))?$/i);
+      // 2. Keyword Volume / Vị diện / Thế giới / Quyển / Mục lục / Tập / Phần / Arc / Vol
+      const keywordMatch = targetStr.match(/^(?:Vị\s*diện|Vi\s*dien|Thế\s*giới|The\s*gioi|Quyển|Quyen|Mục\s*lục|Muc\s*luc|Tập|Tap|Phần|Phan|Arc|Vol(?:ume)?\.?)\s+(\d+|[IVXLCDM]+|[A-Za-zÀ-ỹ0-9\s]{1,40})(?:[:\-\._\s]+(.*))?$/i);
       if (keywordMatch) {
-        return trimmed;
+        return targetStr;
       }
 
-      // 3. Strict Bracketed Volume: 【Quyển 1: ...】 or [Mục lục 2: ...]
-      const bracketMatch = trimmed.match(/^[【\[]\s*(?:Quyển|Quyen|Mục\s*lục|Muc\s*luc|Tập|Tap|Phần|Phan|Vol)\s*(\d+|[IVXLCDM]+)(?:[:\-\._\s]+(.*))?[】\]]$/i);
+      // 3. Bracketed Volume: 【Quyển 1: ...】 or [Mục lục 2: ...] or 【Vị diện 1: ...】
+      const bracketMatch = targetStr.match(/^[【\[]\s*(?:Vị\s*diện|Thế\s*giới|Quyển|Quyen|Mục\s*lục|Muc\s*luc|Tập|Tap|Phần|Phan|Vol)\s*(\d+|[IVXLCDM]+)(?:[:\-\._\s]+(.*))?[】\]]$/i);
       if (bracketMatch) {
-        return trimmed.replace(/^[【\[]/, "").replace(/[】\]]$/, "").trim();
+        return targetStr.replace(/^[【\[]/, "").replace(/[】\]]$/, "").trim();
       }
 
       return null;
@@ -218,43 +227,51 @@ export class DocumentParserService {
       const trimmed = normalizeLine(line);
       if (!trimmed || trimmed.length > 200) return null;
 
+      // Clean leading emojis, checkmarks, symbols (e.g. ✅, ✔️, ☑️, 🌸, 👑, ⭐, 📌, etc.)
+      const cleaned = trimmed
+        .replace(/^[\s\p{Emoji}\p{Extended_Pictographic}✔️☑️✅✓•*~_\-]{1,15}\s*/u, "")
+        .replace(/^[【\[\(]\s*[✔️☑️✅✓vxX\-*•]\s*[】\]\)]\s*/u, "")
+        .trim();
+
+      const targetStr = cleaned.length > 0 ? cleaned : trimmed;
+
       // Pattern 1: Explicit chapter keyword (Chương / Chuong / Chapter / Chap / Hồi / Tiết / C / C\d+)
-      const explicitMatch = trimmed.match(
+      const explicitMatch = targetStr.match(
         /^(?:#+\s+)?(?:Chương|Chuong|Chapter|Chap|Hồi|Hoi|Tiết|Tiet|Phần|Phan|C|Quyển\s*\d+\s*[-–:]\s*Chương)\s*(\d+)(?:[\s:\-\._【\(\[|\/]+(.*))?$/i
       );
       if (explicitMatch) {
         const num = parseInt(explicitMatch[1], 10);
         return {
           number: num,
-          title: trimmed.replace(/^#+\s+/, "").trim(),
+          title: targetStr.replace(/^#+\s+/, "").trim(),
         };
       }
 
       // Pattern 2: Bracketed chapters like 【Chương 2376: ...】 or [Chương 2376] or (Chương 2376)
-      const bracketMatch = trimmed.match(
+      const bracketMatch = targetStr.match(
         /^[【\[\(]\s*(?:Chương|Chuong|Chapter|Chap|Hồi|Hoi|Tiết|Tiet|Phần|Phan|C)\s*(\d+)(?:[\s:\-\._|]+(.*))?[】\]\)]/i
       );
       if (bracketMatch) {
         const num = parseInt(bracketMatch[1], 10);
         return {
           number: num,
-          title: trimmed.trim(),
+          title: targetStr.trim(),
         };
       }
 
       // Pattern 3: Numbered chapter headings like "2376. Tiêu đề" or "2376: Tiêu đề" or "2376 - Tiêu đề"
       // (Strictly avoid dialogue lines starting or ending with quotes)
-      if (!/^["'“«「『]/.test(trimmed) && !/["'”»」』]$/.test(trimmed)) {
-        const numMatch = trimmed.match(/^(\d{1,5})[ \t]*[:\-\._\)\/][ \t]+([^\d"“'«\.\?].+)$/);
+      if (!/^["'“«「『]/.test(targetStr) && !/["'”»」』]$/.test(targetStr)) {
+        const numMatch = targetStr.match(/^(\d{1,5})[ \t]*[:\-\._\)\/][ \t]+([^\d"“'«\.\?].+)$/);
         if (
           numMatch &&
-          trimmed.length < 90 &&
-          !trimmed.includes("http") &&
-          !trimmed.includes('"') &&
-          !trimmed.includes('“') &&
-          !trimmed.includes('”') &&
-          !trimmed.includes('...') &&
-          !trimmed.includes('…')
+          targetStr.length < 90 &&
+          !targetStr.includes("http") &&
+          !targetStr.includes('"') &&
+          !targetStr.includes('“') &&
+          !targetStr.includes('”') &&
+          !targetStr.includes('...') &&
+          !targetStr.includes('…')
         ) {
           const num = parseInt(numMatch[1], 10);
           return {
