@@ -375,113 +375,137 @@ export const AdminPDFUploadStudio: React.FC<AdminPDFUploadStudioProps> = ({ stor
 
           {/* Import Mode Form */}
           <div className="p-5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4">
-            <div className="flex items-center p-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 w-fit text-xs font-semibold">
-              <button
-                type="button"
-                onClick={() => setTargetMode("new")}
-                className={"px-3 py-1.5 rounded-md transition-all " + (
-                  targetMode === "new"
-                    ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm"
-                    : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
-                )}
-              >
-                Tạo truyện mới
-              </button>
-              <button
-                type="button"
-                onClick={() => setTargetMode("existing")}
-                className={"px-3 py-1.5 rounded-md transition-all " + (
-                  targetMode === "existing"
-                    ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm"
-                    : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
-                )}
-              >
-                Nạp vào truyện có sẵn ({stories.length})
-              </button>
-            </div>
-
-            {targetMode === "new" ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+            {storyId ? (
+              <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Tên truyện
-                  </label>
-                  <input
-                    type="text"
-                    value={newStoryTitle}
-                    onChange={(e) => setNewStoryTitle(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs font-medium text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-zinc-400"
-                    required
-                  />
+                  <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block">Truyện đích tiếp nhận chương</span>
+                  <p className="font-bold text-zinc-900 dark:text-white text-sm mt-0.5">
+                    {stories.find((s) => s.id === storyId)?.title || "Truyện hiện tại"}
+                  </p>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Tác giả
-                  </label>
-                  <input
-                    type="text"
-                    value={newStoryAuthor}
-                    onChange={(e) => setNewStoryAuthor(e.target.value)}
-                    placeholder="Chưa rõ"
-                    className="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-zinc-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Thể loại
-                  </label>
-                  <select
-                    value={newStoryGenre}
-                    onChange={(e) => setNewStoryGenre(e.target.value as StoryGenre)}
-                    className="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs font-medium text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-zinc-400"
-                  >
-                    <option value="Huyền Huyễn">Huyền Huyễn</option>
-                    <option value="Tiên Hiệp">Tiên Hiệp</option>
-                    <option value="Khoa Huyễn">Khoa Huyễn</option>
-                    <option value="Đô Thị">Đô Thị</option>
-                    <option value="Dị Giới">Dị Giới</option>
-                    <option value="Hệ Thống">Hệ Thống</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Ảnh bìa (URL)
-                  </label>
-                  <input
-                    type="text"
-                    value={newStoryCover}
-                    onChange={(e) => setNewStoryCover(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-zinc-400"
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-3 pt-1">
-                <select
-                  value={selectedStoryId}
-                  onChange={(e) => setSelectedStoryId(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs font-medium text-zinc-900 dark:text-white"
-                >
-                  {stories.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.title} ({s.volumes.length} mục lục)
-                    </option>
-                  ))}
-                </select>
-
-                <label className="flex items-center gap-2 text-xs font-medium text-zinc-600 dark:text-zinc-400 cursor-pointer">
+                <label className="flex items-center gap-2 text-xs font-medium text-zinc-600 dark:text-zinc-400 cursor-pointer self-start sm:self-auto">
                   <input
                     type="checkbox"
                     checked={replaceExisting}
                     onChange={(e) => setReplaceExisting(e.target.checked)}
                     className="rounded text-zinc-900 dark:text-white w-4 h-4"
                   />
-                  <span>Ghi đè toàn bộ các mục lục cũ của truyện này</span>
+                  <span>Ghi đè toàn bộ mục lục & chương cũ</span>
                 </label>
               </div>
+            ) : (
+              <>
+                <div className="flex items-center p-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 w-fit text-xs font-semibold">
+                  <button
+                    type="button"
+                    onClick={() => setTargetMode("new")}
+                    className={"px-3 py-1.5 rounded-md transition-all " + (
+                      targetMode === "new"
+                        ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm"
+                        : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
+                    )}
+                  >
+                    Tạo truyện mới
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTargetMode("existing")}
+                    className={"px-3 py-1.5 rounded-md transition-all " + (
+                      targetMode === "existing"
+                        ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm"
+                        : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
+                    )}
+                  >
+                    Nạp vào truyện có sẵn ({stories.length})
+                  </button>
+                </div>
+
+                {targetMode === "new" ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+                    <div>
+                      <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                        Tên truyện
+                      </label>
+                      <input
+                        type="text"
+                        value={newStoryTitle}
+                        onChange={(e) => setNewStoryTitle(e.target.value)}
+                        className="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs font-medium text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                        Tác giả
+                      </label>
+                      <input
+                        type="text"
+                        value={newStoryAuthor}
+                        onChange={(e) => setNewStoryAuthor(e.target.value)}
+                        placeholder="Chưa rõ"
+                        className="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                        Thể loại
+                      </label>
+                      <select
+                        value={newStoryGenre}
+                        onChange={(e) => setNewStoryGenre(e.target.value as StoryGenre)}
+                        className="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs font-medium text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                      >
+                        <option value="Huyền Huyễn">Huyền Huyễn</option>
+                        <option value="Tiên Hiệp">Tiên Hiệp</option>
+                        <option value="Khoa Huyễn">Khoa Huyễn</option>
+                        <option value="Đô Thị">Đô Thị</option>
+                        <option value="Dị Giới">Dị Giới</option>
+                        <option value="Hệ Thống">Hệ Thống</option>
+                        <option value="Ngôn Tình">Ngôn Tình</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                        Ảnh bìa (URL)
+                      </label>
+                      <input
+                        type="text"
+                        value={newStoryCover}
+                        onChange={(e) => setNewStoryCover(e.target.value)}
+                        className="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3 pt-1">
+                    <select
+                      value={selectedStoryId}
+                      onChange={(e) => setSelectedStoryId(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs font-medium text-zinc-900 dark:text-white"
+                    >
+                      {stories.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.title} ({s.volumes.length} mục lục)
+                        </option>
+                      ))}
+                    </select>
+
+                    <label className="flex items-center gap-2 text-xs font-medium text-zinc-600 dark:text-zinc-400 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={replaceExisting}
+                        onChange={(e) => setReplaceExisting(e.target.checked)}
+                        className="rounded text-zinc-900 dark:text-white w-4 h-4"
+                      />
+                      <span>Ghi đè toàn bộ các mục lục cũ của truyện này</span>
+                    </label>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
