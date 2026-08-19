@@ -213,6 +213,11 @@ export class DocumentParserService {
       const trimmed = line.trim();
       if (!trimmed || trimmed.length > 200) return null;
 
+      // Ignore lines that start with quotes, ellipsis, or dialogue markers
+      if (/^["'“«「『]/.test(trimmed) || /["'”»」』]$/.test(trimmed)) {
+        return null;
+      }
+
       // Pattern 1: Standard Chapter / Hồi / Tiết / Phần / Chap / C with number
       const match = trimmed.match(
         /^(?:#+\s+)?(?:Chương|Chuong|Chapter|Chap|Hồi|Hoi|Tiết|Tiet|Phần|Phan|Vị [Dd]iện|Thế [Gg]iới|Arc|C|Quyển\s*\d+\s*[-–:]\s*Chương)\s*(\d+)(?:[\s:\-\._【\(\[|\/]+(.*))?$/i
@@ -237,9 +242,18 @@ export class DocumentParserService {
         };
       }
 
-      // Pattern 3: Numbered chapter headings like "2376. Tiêu đề" or "2376: Tiêu đề" or "2376 - Tiêu đề" (up to 5 digits)
-      const numMatch = trimmed.match(/^(\d{1,5})[ \t]*[:\-\._\)\/][ \t]*(.+)$/);
-      if (numMatch && trimmed.length < 120 && !trimmed.includes("http")) {
+      // Pattern 3: Numbered chapter headings like "2376. Tiêu đề" or "2376: Tiêu đề" (ONLY if clearly not dialogue/quotes)
+      const numMatch = trimmed.match(/^(\d{1,5})[ \t]*[:\-\._\)\/][ \t]+([^\d"“'«\.\?].+)$/);
+      if (
+        numMatch &&
+        trimmed.length < 80 &&
+        !trimmed.includes("http") &&
+        !trimmed.includes('"') &&
+        !trimmed.includes('“') &&
+        !trimmed.includes('”') &&
+        !trimmed.includes('...') &&
+        !trimmed.includes('…')
+      ) {
         const num = parseInt(numMatch[1], 10);
         return {
           number: num,
