@@ -50,7 +50,7 @@ export const AdminStoryDetailView: React.FC<AdminStoryDetailViewProps> = ({
     setLoading(true);
     const res = await storyApi.getStoryById(storyId, true);
     if (res.success && res.data) {
-      setStory(res.data);
+      setStory({ ...res.data });
     }
     setLoading(false);
   };
@@ -320,8 +320,13 @@ export const AdminStoryDetailView: React.FC<AdminStoryDetailViewProps> = ({
         <div className="p-5 rounded-2xl bg-white border border-zinc-200 shadow-sm">
           <AdminPDFUploadStudio
             storyId={story.id}
-            onSuccess={() => {
-              loadStory();
+            onSuccess={async (updatedStoryId) => {
+              const res = await storyApi.getStoryById(updatedStoryId || story.id, true);
+              if (res.success && res.data) {
+                setStory({ ...res.data });
+              } else {
+                await loadStory();
+              }
               setActiveSubTab("chapters");
             }}
           />
