@@ -48,7 +48,10 @@ export const AdminPDFUploadStudio: React.FC<AdminPDFUploadStudioProps> = ({ stor
     const res = await storyApi.getStories({ includeInactive: true });
     if (res.success) {
       setStories(res.data);
-      if (res.data.length > 0 && !selectedStoryId) {
+      if (storyId) {
+        setSelectedStoryId(storyId);
+        setTargetMode("existing");
+      } else if (res.data.length > 0 && !selectedStoryId) {
         setSelectedStoryId(res.data[0].id);
       }
     }
@@ -56,7 +59,11 @@ export const AdminPDFUploadStudio: React.FC<AdminPDFUploadStudioProps> = ({ stor
 
   useEffect(() => {
     loadStories();
-  }, []);
+    if (storyId) {
+      setSelectedStoryId(storyId);
+      setTargetMode("existing");
+    }
+  }, [storyId]);
 
   const handleFileChange = async (file: File) => {
     if (!file) return;
@@ -342,16 +349,28 @@ export const AdminPDFUploadStudio: React.FC<AdminPDFUploadStudioProps> = ({ stor
               </div>
             </div>
 
-            <button
-              onClick={() => {
-                setParseResult(null);
-                setSelectedFile(null);
-              }}
-              className="text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-white flex items-center gap-1 self-start sm:self-auto"
-            >
-              <X className="w-3.5 h-3.5" />
-              <span>Đổi tệp khác</span>
-            </button>
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={handleConfirmImport}
+                disabled={isSaving}
+                className="px-4 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 dark:text-zinc-900 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 disabled:opacity-50"
+              >
+                <span>{isSaving ? "Đang lưu..." : `Lưu & Nạp ngay (${parseResult.totalChapters} chương)`}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+
+              <button
+                onClick={() => {
+                  setParseResult(null);
+                  setSelectedFile(null);
+                }}
+                className="px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-white flex items-center gap-1"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>Đổi tệp</span>
+              </button>
+            </div>
           </div>
 
           {/* Import Mode Form */}

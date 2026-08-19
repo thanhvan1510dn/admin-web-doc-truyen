@@ -211,15 +211,42 @@ export class DocumentParserService {
 
     const isChapterHeading = (line: string): { number: number; title: string } | null => {
       const trimmed = line.trim();
-      if (!trimmed) return null;
+      if (!trimmed || trimmed.length > 200) return null;
 
-      const match = trimmed.match(/^(?:##\s+)?(?:Chương|Chuong|Chapter|Tiết|Tiet)\s*(\d+)(?:[ \t]*[:\-\._][ \t]*(.*))?$/i);
+      // Pattern 1: Standard Chapter / Hồi / Tiết / Phần / Chap / C with number
+      const match = trimmed.match(
+        /^(?:#+\s+)?(?:Chương|Chuong|Chapter|Chap|Hồi|Hoi|Tiết|Tiet|Phần|Phan|Vị [Dd]iện|Thế [Gg]iới|Arc|C|Quyển\s*\d+\s*[-–:]\s*Chương)\s*(\d+)(?:[\s:\-\._【\(\[|\/]+(.*))?$/i
+      );
       if (match) {
+        const num = parseInt(match[1], 10);
         return {
-          number: parseInt(match[1], 10),
-          title: trimmed.replace(/^##\s+/, "").trim(),
+          number: num,
+          title: trimmed.replace(/^#+\s+/, "").trim(),
         };
       }
+
+      // Pattern 2: Bracketed chapters like 【Chương 2376: ...】 or [Chương 2376] or (Chương 2376)
+      const bracketMatch = trimmed.match(
+        /^[【\[\(]\s*(?:Chương|Chuong|Chapter|Chap|Hồi|Hoi|Tiết|Tiet|Phần|Phan|C)\s*(\d+)(?:[\s:\-\._|]+(.*))?[】\]\)]/i
+      );
+      if (bracketMatch) {
+        const num = parseInt(bracketMatch[1], 10);
+        return {
+          number: num,
+          title: trimmed.trim(),
+        };
+      }
+
+      // Pattern 3: Numbered chapter headings like "2376. Tiêu đề" or "2376: Tiêu đề" or "2376 - Tiêu đề" (up to 5 digits)
+      const numMatch = trimmed.match(/^(\d{1,5})[ \t]*[:\-\._\)\/][ \t]*(.+)$/);
+      if (numMatch && trimmed.length < 120 && !trimmed.includes("http")) {
+        const num = parseInt(numMatch[1], 10);
+        return {
+          number: num,
+          title: `Chương ${num}: ${numMatch[2].trim()}`,
+        };
+      }
+
       return null;
     };
 
@@ -262,7 +289,54 @@ export class DocumentParserService {
 
     flushChapter();
 
-    const validVolumes = volumes.filter((v) => v.chapters.length > 0);
+    let validVolumes = volumes.filter((v) => v.chapters.length > 0);
+
+    // Fallback: If no chapters detected by headings, but text exists, split by paragraphs or chunk into chapters
+    if (validVolumes.length === 0 && rawText.trim().length > 0) {
+      const paragraphs = rawText.split(/\r?\n\s*\r?\n+/).map((p) => p.trim()).filter(Boolean);
+      const fallbackChapters: ParsedChapter[] = [];
+      let currentChunk: string[] = [];
+      let currentWordCount = 0;
+      let chapNum = 1;
+
+      for (const p of paragraphs) {
+        const words = p.split(/\s+/).filter(Boolean).length;
+        currentChunk.push(p);
+        currentWordCount += words;
+
+        if (currentWordCount >= 2000) {
+          fallbackChapters.push({
+            number: chapNum,
+            title: `Chương ${chapNum}`,
+            content: currentChunk.join("\n\n"),
+            wordCount: currentWordCount,
+          });
+          chapNum++;
+          currentChunk = [];
+          currentWordCount = 0;
+        }
+      }
+
+      if (currentChunk.length > 0) {
+        fallbackChapters.push({
+          number: chapNum,
+          title: `Chương ${chapNum}`,
+          content: currentChunk.join("\n\n"),
+          wordCount: currentWordCount,
+        });
+      }
+
+      if (fallbackChapters.length > 0) {
+        validVolumes = [
+          {
+            number: 1,
+            title: "Mục lục 1",
+            chapters: fallbackChapters,
+          },
+        ];
+      }
+    }
+
     validVolumes.forEach((v, idx) => {
       v.number = idx + 1;
     });
