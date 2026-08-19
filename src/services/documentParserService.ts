@@ -158,7 +158,7 @@ export class DocumentParserService {
    * Universal Line-by-Line Document Parser
    */
   public parseDocumentLines(rawText: string): ParsedVolume[] {
-    const lines = rawText.split(/\r?\n/);
+    const rawLines = rawText.split(/\r?\n/);
     const volumes: ParsedVolume[] = [];
 
     let currentVolume: ParsedVolume | null = null;
@@ -177,11 +177,18 @@ export class DocumentParserService {
       }
     };
 
+    const normalizeLine = (str: string) => {
+      return str
+        .normalize("NFKC")
+        .replace(/[\u00A0\u1680\u180e\u2000-\u200b\u202f\u205f\u3000\ufeff]/g, " ")
+        .trim();
+    };
+
     const isMajorTab = (line: string): string | null => {
-      const trimmed = line.trim();
+      const trimmed = normalizeLine(line);
       if (!trimmed || trimmed.length > 120) return null;
 
-      // Pattern 1: (2376-2378) or (2379-2416) Realm title
+      // Pattern 1: (2376-2378) or (2379-2416) Realm title / Range
       const rangeMatch = trimmed.match(/^\s*\(?\s*(\d+)\s*[-–—]\s*(\d+)\s*\)?\s*(.*)$/i);
       if (rangeMatch) {
         if (!trimmed.toLowerCase().startsWith("chương") && !trimmed.toLowerCase().startsWith("chuong")) {
@@ -189,20 +196,20 @@ export class DocumentParserService {
         }
       }
 
-      // Pattern 2: [Mục lục...] or === Mục lục ===
+      // Pattern 2: [Mục lục...] or === Mục lục === or 【Mục lục...】
       const bracketMatch = trimmed.match(/^【([^】]+)】$/) || trimmed.match(/^===\s*([^=]+)\s*===$/) || trimmed.match(/^\[([^\]]+)\]$/);
-      if (bracketMatch && !bracketMatch[1].toLowerCase().includes("chương")) {
+      if (bracketMatch && !bracketMatch[1].toLowerCase().includes("chương") && !bracketMatch[1].toLowerCase().includes("chuong")) {
         return bracketMatch[1].trim();
       }
 
-      // Pattern 3: Muc luc 1, Quyển 1, Vị diện 1
+      // Pattern 3: Mục lục 1, Quyển 1, Vị diện 1, Arc 1, Tập 1
       const sectionMatch = trimmed.match(/^(?:Mục lục|Muc luc|Quyển|Quyen|Tập|Tap|Phần|Phan|Vị [Dd]iện|Vi [Dd]ien|Arc)\s+(\d+|[IVXLCDM]+|[A-Za-zÀ-ỹ0-9\s]{1,40})[:\-\._\s]?(.*)$/i);
-      if (sectionMatch) {
+      if (sectionMatch && !trimmed.toLowerCase().includes("chương") && !trimmed.toLowerCase().includes("chuong")) {
         return trimmed;
       }
 
-      // Pattern 4: Markdown # Heading
-      if (trimmed.startsWith("# ") && !trimmed.toLowerCase().includes("chương")) {
+      // Pattern 4: Markdown # Heading (without chapter keyword)
+      if (trimmed.startsWith("# ") && !trimmed.toLowerCase().includes("chương") && !trimmed.toLowerCase().includes("chuong")) {
         return trimmed.replace(/^#\s+/, "").trim();
       }
 
@@ -210,20 +217,15 @@ export class DocumentParserService {
     };
 
     const isChapterHeading = (line: string): { number: number; title: string } | null => {
-      const trimmed = line.trim();
+      const trimmed = normalizeLine(line);
       if (!trimmed || trimmed.length > 200) return null;
 
-      // Ignore lines that start with quotes, ellipsis, or dialogue markers
-      if (/^["'“«「『]/.test(trimmed) || /["'”»」』]$/.test(trimmed)) {
-        return null;
-      }
-
-      // Pattern 1: Standard Chapter / Hồi / Tiết / Phần / Chap / C with number
-      const match = trimmed.match(
-        /^(?:#+\s+)?(?:Chương|Chuong|Chapter|Chap|Hồi|Hoi|Tiết|Tiet|Phần|Phan|Vị [Dd]iện|Thế [Gg]iới|Arc|C|Quyển\s*\d+\s*[-–:]\s*Chương)\s*(\d+)(?:[\s:\-\._【\(\[|\/]+(.*))?$/i
+      // Pattern 1: Explicit chapter keyword (Chương / Chuong / Chapter / Chap / Hồi / Tiết / C / C\d+)
+      const explicitMatch = trimmed.match(
+        /^(?:#+\s+)?(?:Chương|Chuong|Chapter|Chap|Hồi|Hoi|Tiết|Tiet|Phần|Phan|C|Quyển\s*\d+\s*[-–:]\s*Chương)\s*(\d+)(?:[\s:\-\._【\(\[|\/]+(.*))?$/i
       );
-      if (match) {
-        const num = parseInt(match[1], 10);
+      if (explicitMatch) {
+        const num = parseInt(explicitMatch[1], 10);
         return {
           number: num,
           title: trimmed.replace(/^#+\s+/, "").trim(),
@@ -242,30 +244,33 @@ export class DocumentParserService {
         };
       }
 
-      // Pattern 3: Numbered chapter headings like "2376. Tiêu đề" or "2376: Tiêu đề" (ONLY if clearly not dialogue/quotes)
-      const numMatch = trimmed.match(/^(\d{1,5})[ \t]*[:\-\._\)\/][ \t]+([^\d"“'«\.\?].+)$/);
-      if (
-        numMatch &&
-        trimmed.length < 80 &&
-        !trimmed.includes("http") &&
-        !trimmed.includes('"') &&
-        !trimmed.includes('“') &&
-        !trimmed.includes('”') &&
-        !trimmed.includes('...') &&
-        !trimmed.includes('…')
-      ) {
-        const num = parseInt(numMatch[1], 10);
-        return {
-          number: num,
-          title: `Chương ${num}: ${numMatch[2].trim()}`,
-        };
+      // Pattern 3: Numbered chapter headings like "2376. Tiêu đề" or "2376: Tiêu đề" or "2376 - Tiêu đề"
+      // (Strictly avoid dialogue lines starting or ending with quotes)
+      if (!/^["'“«「『]/.test(trimmed) && !/["'”»」』]$/.test(trimmed)) {
+        const numMatch = trimmed.match(/^(\d{1,5})[ \t]*[:\-\._\)\/][ \t]+([^\d"“'«\.\?].+)$/);
+        if (
+          numMatch &&
+          trimmed.length < 90 &&
+          !trimmed.includes("http") &&
+          !trimmed.includes('"') &&
+          !trimmed.includes('“') &&
+          !trimmed.includes('”') &&
+          !trimmed.includes('...') &&
+          !trimmed.includes('…')
+        ) {
+          const num = parseInt(numMatch[1], 10);
+          return {
+            number: num,
+            title: `Chương ${num}: ${numMatch[2].trim()}`,
+          };
+        }
       }
 
       return null;
     };
 
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
+    for (let i = 0; i < rawLines.length; i++) {
+      const line = rawLines[i];
       const majorTabTitle = isMajorTab(line);
       const chapInfo = isChapterHeading(line);
 

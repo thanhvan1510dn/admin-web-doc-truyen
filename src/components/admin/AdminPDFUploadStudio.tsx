@@ -27,7 +27,7 @@ export const AdminPDFUploadStudio: React.FC<AdminPDFUploadStudioProps> = ({ stor
   // Target Mode: "new" | "existing"
   const [targetMode, setTargetMode] = useState<"new" | "existing">(storyId ? "existing" : "new");
   const [selectedStoryId, setSelectedStoryId] = useState<string>(storyId || "");
-  const [replaceExisting, setReplaceExisting] = useState(true);
+  const [replaceExisting, setReplaceExisting] = useState(false);
 
   // New Story Form
   const [newStoryTitle, setNewStoryTitle] = useState("");
@@ -376,7 +376,7 @@ export const AdminPDFUploadStudio: React.FC<AdminPDFUploadStudioProps> = ({ stor
           {/* Import Mode Form */}
           <div className="p-5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4">
             {storyId ? (
-              <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
                 <div>
                   <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block">Truyện đích tiếp nhận chương</span>
                   <p className="font-bold text-zinc-900 dark:text-white text-sm mt-0.5">
@@ -384,15 +384,32 @@ export const AdminPDFUploadStudio: React.FC<AdminPDFUploadStudioProps> = ({ stor
                   </p>
                 </div>
 
-                <label className="flex items-center gap-2 text-xs font-medium text-zinc-600 dark:text-zinc-400 cursor-pointer self-start sm:self-auto">
-                  <input
-                    type="checkbox"
-                    checked={replaceExisting}
-                    onChange={(e) => setReplaceExisting(e.target.checked)}
-                    className="rounded text-zinc-900 dark:text-white w-4 h-4"
-                  />
-                  <span>Ghi đè toàn bộ mục lục & chương cũ</span>
-                </label>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <label className="flex items-center gap-2 cursor-pointer font-medium">
+                    <input
+                      type="radio"
+                      name="importMode"
+                      checked={!replaceExisting}
+                      onChange={() => setReplaceExisting(false)}
+                      className="text-zinc-900 focus:ring-0"
+                    />
+                    <span className={!replaceExisting ? "font-bold text-emerald-600 dark:text-emerald-400" : "text-zinc-500"}>
+                      ➕ Gộp tiếp nối (File tiếp theo)
+                    </span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer font-medium">
+                    <input
+                      type="radio"
+                      name="importMode"
+                      checked={replaceExisting}
+                      onChange={() => setReplaceExisting(true)}
+                      className="text-zinc-900 focus:ring-0"
+                    />
+                    <span className={replaceExisting ? "font-bold text-rose-600 dark:text-rose-400" : "text-zinc-500"}>
+                      ⚠️ Ghi đè toàn bộ
+                    </span>
+                  </label>
+                </div>
               </div>
             ) : (
               <>
@@ -482,27 +499,50 @@ export const AdminPDFUploadStudio: React.FC<AdminPDFUploadStudioProps> = ({ stor
                   </div>
                 ) : (
                   <div className="space-y-3 pt-1">
-                    <select
-                      value={selectedStoryId}
-                      onChange={(e) => setSelectedStoryId(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs font-medium text-zinc-900 dark:text-white"
-                    >
-                      {stories.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.title} ({s.volumes.length} mục lục)
-                        </option>
-                      ))}
-                    </select>
+                    <div>
+                      <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                        Chọn truyện nhận file tiếp theo
+                      </label>
+                      <select
+                        value={selectedStoryId}
+                        onChange={(e) => setSelectedStoryId(e.target.value)}
+                        className="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs font-medium text-zinc-900 dark:text-white"
+                      >
+                        {stories.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.title} ({s.volumes.length} mục lục)
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                    <label className="flex items-center gap-2 text-xs font-medium text-zinc-600 dark:text-zinc-400 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={replaceExisting}
-                        onChange={(e) => setReplaceExisting(e.target.checked)}
-                        className="rounded text-zinc-900 dark:text-white w-4 h-4"
-                      />
-                      <span>Ghi đè toàn bộ các mục lục cũ của truyện này</span>
-                    </label>
+                    <div className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 flex flex-col sm:flex-row gap-4 text-xs">
+                      <label className="flex items-center gap-2 cursor-pointer font-medium">
+                        <input
+                          type="radio"
+                          name="importModeExisting"
+                          checked={!replaceExisting}
+                          onChange={() => setReplaceExisting(false)}
+                          className="text-zinc-900 focus:ring-0"
+                        />
+                        <span className={!replaceExisting ? "font-bold text-emerald-600 dark:text-emerald-400" : "text-zinc-500"}>
+                          ➕ Gộp tiếp nối (File tiếp theo: Quyển 2, 3...)
+                        </span>
+                      </label>
+
+                      <label className="flex items-center gap-2 cursor-pointer font-medium">
+                        <input
+                          type="radio"
+                          name="importModeExisting"
+                          checked={replaceExisting}
+                          onChange={() => setReplaceExisting(true)}
+                          className="text-zinc-900 focus:ring-0"
+                        />
+                        <span className={replaceExisting ? "font-bold text-rose-600 dark:text-rose-400" : "text-zinc-500"}>
+                          ⚠️ Ghi đè thay thế toàn bộ
+                        </span>
+                      </label>
+                    </div>
                   </div>
                 )}
               </>

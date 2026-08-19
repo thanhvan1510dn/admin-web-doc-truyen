@@ -667,7 +667,7 @@ class StoryStorageService {
   public async importParsedVolumes(
     storyId: string,
     parsedVolumes: ParsedVolume[],
-    replaceExisting = true
+    replaceExisting = false
   ): Promise<Story | null> {
     let story = this.cachedStories.find((s) => s.id === storyId && !s.isDeleted);
     if (!story) {
@@ -684,11 +684,13 @@ class StoryStorageService {
     }
 
     const now = new Date().toISOString();
+    const existingVolCount = replaceExisting ? 0 : story.volumes.length;
+
     const convertedVolumes: Volume[] = parsedVolumes.map((pv, vIdx) => {
       const volumeId = "vol_" + Date.now() + "_" + vIdx + "_" + Math.random().toString(36).substring(2, 5);
       return {
         id: volumeId,
-        number: pv.number || vIdx + 1,
+        number: existingVolCount + (pv.number || vIdx + 1),
         title: pv.title,
         chapters: pv.chapters.map((ch, cIdx) => ({
           id: "chap_" + Date.now() + "_" + vIdx + "_" + cIdx + "_" + Math.random().toString(36).substring(2, 6),
@@ -710,6 +712,12 @@ class StoryStorageService {
     } else {
       story.volumes = [...story.volumes, ...convertedVolumes];
     }
+
+    // Re-index all volumes sequentially 1..N and sort chapters in each volume
+    story.volumes.forEach((vol, idx) => {
+      vol.number = idx + 1;
+      vol.chapters.sort((a, b) => a.number - b.number);
+    });
 
     story.updatedAt = now;
     this.broadcastChange();
