@@ -25,7 +25,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
 }) => {
   const toast = useToast();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const currentUser = authApi.getCurrentUser();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -76,23 +75,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
               </span>
             </div>
           </div>
-
-          {/* User Card */}
-          {currentUser && (
-            <div className="p-2.5 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-zinc-200 flex items-center justify-center font-bold text-xs text-zinc-700 flex-shrink-0">
-                SA
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold text-xs text-zinc-900 truncate">
-                  {currentUser.name}
-                </p>
-                <p className="text-[10px] text-zinc-500 font-mono">
-                  Super Admin
-                </p>
-              </div>
-            </div>
-          )}
 
           {/* Navigation Menu */}
           <nav className="space-y-1">

@@ -496,6 +496,55 @@ class StoryStorageService {
     return newVolume;
   }
 
+  public updateVolume(storyId: string, volumeId: string, newTitle: string): Volume | null {
+    const story = this.cachedStories.find((s) => s.id === storyId && !s.isDeleted);
+    if (!story) return null;
+
+    const vol = story.volumes.find((v) => v.id === volumeId);
+    if (!vol) return null;
+
+    vol.title = newTitle.trim() || vol.title;
+    story.updatedAt = new Date().toISOString();
+    this.broadcastChange();
+
+    this.saveStoryToFirestore(story).catch((err) =>
+      console.error("Firestore updateVolume error:", err)
+    );
+
+    return vol;
+  }
+
+  public deleteVolume(storyId: string, volumeId: string): boolean {
+    const story = this.cachedStories.find((s) => s.id === storyId && !s.isDeleted);
+    if (!story) return false;
+
+    const volIndex = story.volumes.findIndex((v) => v.id === volumeId);
+    if (volIndex === -1) return false;
+
+    const [deletedVol] = story.volumes.splice(volIndex, 1);
+    // Re-index remaining volumes
+    story.volumes.forEach((v, idx) => {
+      v.number = idx + 1;
+    });
+    story.updatedAt = new Date().toISOString();
+    this.broadcastChange();
+
+    this.saveStoryToFirestore(story).catch((err) =>
+      console.error("Firestore deleteVolume error:", err)
+    );
+
+    // Delete subcollection chapter documents for chapters in this volume
+    if (deletedVol && Array.isArray(deletedVol.chapters)) {
+      for (const ch of deletedVol.chapters) {
+        deleteDoc(doc(db, "stories", storyId, "chapters", ch.id)).catch((err) =>
+          console.warn("Firestore subcollection deleteChapter error:", err)
+        );
+      }
+    }
+
+    return true;
+  }
+
   public createChapter(storyIdOrDto: string | CreateChapterDto, maybeDto?: CreateChapterDto): Chapter | null {
     const dto = typeof storyIdOrDto === "string" ? maybeDto! : storyIdOrDto;
     const storyId = typeof storyIdOrDto === "string" ? storyIdOrDto : dto.storyId;

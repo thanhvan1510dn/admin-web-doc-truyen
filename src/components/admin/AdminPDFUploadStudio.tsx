@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { 
   FileUp, CheckCircle2, RefreshCw, 
-  ChevronDown, ChevronUp, Eye, ArrowRight, X, Edit3, Check, Scissors
+  ChevronDown, ChevronUp, Eye, ArrowRight, X, Edit3, Check, Scissors, Trash2
 } from "lucide-react";
 import { storyApi } from "../../api";
 import { Story, StoryGenre } from "../../types/story";
@@ -196,6 +196,26 @@ export const AdminPDFUploadStudio: React.FC<AdminPDFUploadStudioProps> = ({ stor
     });
 
     toast.success("Đã gộp vào " + prevVol.title);
+  };
+
+  const handleDeleteVolume = (volNumber: number) => {
+    if (!parseResult) return;
+    const remainingVolumes = parseResult.volumes
+      .filter((v) => v.number !== volNumber)
+      .map((v, idx) => ({ ...v, number: idx + 1 }));
+
+    const totalCh = remainingVolumes.reduce((acc, v) => acc + v.chapters.length, 0);
+    const totalW = remainingVolumes.reduce((acc, v) => acc + v.chapters.reduce((ca, c) => ca + c.wordCount, 0), 0);
+
+    setParseResult({
+      ...parseResult,
+      totalVolumes: remainingVolumes.length,
+      totalChapters: totalCh,
+      totalWords: totalW,
+      volumes: remainingVolumes,
+    });
+
+    toast.info("Đã xóa mục lục " + volNumber);
   };
 
   const handleConfirmImport = async () => {
@@ -629,6 +649,18 @@ export const AdminPDFUploadStudio: React.FC<AdminPDFUploadStudioProps> = ({ stor
                                 Gộp lên
                               </button>
                             )}
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteVolume(volume.number);
+                              }}
+                              className="p-1 text-zinc-400 hover:text-rose-500 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                              title="Xóa mục lục này"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
                           </div>
                         )}
                       </div>

@@ -3,7 +3,7 @@ import {
   ArrowLeft, Upload, Edit, Trash2, Layers, Eye, X, FileUp, 
   BookOpen, ChevronDown, ChevronUp, ExternalLink, AlertTriangle, Info
 } from "lucide-react";
-import { Chapter, Story } from "../../types/story";
+import { Chapter, Story, Volume } from "../../types/story";
 import { storyApi } from "../../api";
 import { useToast } from "../common/Toast";
 import { AdminPDFUploadStudio } from "./AdminPDFUploadStudio";
@@ -43,8 +43,10 @@ export const AdminStoryDetailView: React.FC<AdminStoryDetailViewProps> = ({
   const [editActive, setEditActive] = useState(true);
   const [savingChapter, setSavingChapter] = useState(false);
 
-  // Delete Chapter Target
   const [deleteChapterTarget, setDeleteChapterTarget] = useState<Chapter | null>(null);
+
+  // Delete Volume Target
+  const [deleteVolumeTarget, setDeleteVolumeTarget] = useState<Volume | null>(null);
 
   const loadStory = async () => {
     setLoading(true);
@@ -121,6 +123,18 @@ export const AdminStoryDetailView: React.FC<AdminStoryDetailViewProps> = ({
       loadStory();
     } else {
       toast.error(res.error || "Không thể xoá chương");
+    }
+  };
+
+  const handleDeleteVolume = async () => {
+    if (!deleteVolumeTarget) return;
+    const res = await storyApi.deleteVolume(storyId, deleteVolumeTarget.id);
+    if (res.success) {
+      toast.success("Đã xoá mục lục " + (deleteVolumeTarget.title || ""));
+      setDeleteVolumeTarget(null);
+      loadStory();
+    } else {
+      toast.error(res.error || "Không thể xoá mục lục");
     }
   };
 
@@ -394,7 +408,7 @@ export const AdminStoryDetailView: React.FC<AdminStoryDetailViewProps> = ({
                     {/* Volume Header */}
                     <div
                       onClick={() => toggleVolCollapse(volume.id)}
-                      className="p-3.5 bg-zinc-50 flex items-center justify-between cursor-pointer select-none border-b border-zinc-100 hover:bg-zinc-100/70 transition-colors"
+                      className="p-3.5 bg-zinc-50 flex items-center justify-between cursor-pointer select-none border-b border-zinc-100 hover:bg-zinc-100/70 transition-colors group/vol"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <h4 className="font-bold text-xs sm:text-sm text-zinc-900 truncate">
@@ -404,6 +418,17 @@ export const AdminStoryDetailView: React.FC<AdminStoryDetailViewProps> = ({
 
                       <div className="flex items-center gap-2 text-xs font-mono text-zinc-500">
                         <span>{volume.chapters.length} chương</span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteVolumeTarget(volume);
+                          }}
+                          className="p-1 rounded text-zinc-400 hover:text-rose-600 hover:bg-rose-50 opacity-0 group-hover/vol:opacity-100 transition-opacity"
+                          title="Xoá cả mục lục này"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                         {isCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
                       </div>
                     </div>
@@ -612,7 +637,7 @@ export const AdminStoryDetailView: React.FC<AdminStoryDetailViewProps> = ({
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Chapter Confirmation Modal */}
       {deleteChapterTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
           <div className="bg-white rounded-2xl border border-zinc-200 p-6 w-full max-w-md space-y-4 shadow-xl">
@@ -643,6 +668,43 @@ export const AdminStoryDetailView: React.FC<AdminStoryDetailViewProps> = ({
                 className="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shadow-sm"
               >
                 Xoá chương
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Volume Confirmation Modal */}
+      {deleteVolumeTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl border border-zinc-200 p-6 w-full max-w-md space-y-4 shadow-xl">
+            <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+
+            <div className="text-center space-y-1">
+              <h3 className="text-sm font-bold text-zinc-900">
+                Xác nhận xoá toàn bộ mục lục?
+              </h3>
+              <p className="text-xs text-zinc-500">
+                Bạn có chắc muốn xoá mục lục <strong>"{deleteVolumeTarget.title}"</strong> bao gồm <strong>{deleteVolumeTarget.chapters.length} chương</strong> thuộc mục lục này?
+              </p>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteVolumeTarget(null)}
+                className="flex-1 py-2 rounded-xl border border-zinc-200 text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
+              >
+                Huỷ bỏ
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteVolume}
+                className="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shadow-sm"
+              >
+                Xoá cả mục lục
               </button>
             </div>
           </div>
