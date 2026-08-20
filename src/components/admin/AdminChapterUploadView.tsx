@@ -252,7 +252,7 @@ Chiếc bình nhỏ màu xanh lục bảo trong đan điền khẽ rung lên, m�
                     min={1}
                     value={chapterNumber}
                     onChange={(e) => setChapterNumber(parseInt(e.target.value) || 1)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200   bg-zinc-50   text-sm font-bold text-zinc-900  focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 bg-zinc-50 text-sm font-bold text-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-400 transition-all font-mono"
                     required
                   />
                 </div>
@@ -266,7 +266,7 @@ Chiếc bình nhỏ màu xanh lục bảo trong đan điền khẽ rung lên, m�
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Ví dụ: Chương 10: Cơ duyên đột phá..."
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200   bg-zinc-50   text-sm font-semibold text-zinc-900  focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200   bg-zinc-50   text-sm font-semibold text-zinc-900  focus:outline-none focus:ring-1 focus:ring-zinc-400 transition-all"
                     required
                   />
                 </div>
@@ -296,7 +296,7 @@ Chiếc bình nhỏ màu xanh lục bảo trong đan điền khẽ rung lên, m�
                   <button
                     type="button"
                     onClick={handleInsertSample}
-                    className="px-2.5 py-1.5 rounded-lg bg-zinc-100  text-zinc-900   hover:bg-zinc-900 hover:bg-zinc-800  :bg-zinc-200  text-white/20 font-semibold flex items-center gap-1 transition-colors"
+                    className="px-2.5 py-1.5 rounded-lg bg-zinc-100  text-zinc-900   hover:bg-zinc-800 text-white font-semibold flex items-center gap-1 transition-colors"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>Chèn mẫu nhanh</span>
@@ -315,7 +315,7 @@ Chiếc bình nhỏ màu xanh lục bảo trong đan điền khẽ rung lên, m�
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Dán hoặc soạn thảo toàn bộ nội dung chương truyện tại đây..."
-                  className="w-full p-4 rounded-xl border border-zinc-200   bg-zinc-50   text-zinc-900  text-sm font-sans leading-relaxed placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all resize-y min-h-[320px]"
+                  className="w-full p-4 rounded-xl border border-zinc-200   bg-zinc-50   text-zinc-900  text-sm font-sans leading-relaxed placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-zinc-400 transition-all resize-y min-h-[320px]"
                   required
                 />
               </div>
@@ -335,7 +335,7 @@ Chiếc bình nhỏ màu xanh lục bảo trong đan điền khẽ rung lên, m�
                 <select
                   value={selectedStoryId}
                   onChange={(e) => setSelectedStoryId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200   bg-zinc-50   text-sm font-bold text-zinc-900  focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200   bg-zinc-50   text-sm font-bold text-zinc-900  focus:outline-none focus:ring-1 focus:ring-zinc-400 transition-all"
                 >
                   {stories.map((s) => (
                     <option key={s.id} value={s.id}>
@@ -390,13 +390,13 @@ Chiếc bình nhỏ màu xanh lục bảo trong đan điền khẽ rung lên, m�
               </div>
 
               {showAddVolume ? (
-                <div className="p-3 rounded-xl bg-zinc-100  border border-amber-500/20 space-y-2">
+                <div className="p-3 rounded-xl bg-zinc-100  border border-zinc-300 space-y-2">
                   <input
                     type="text"
                     value={newVolumeTitle}
                     onChange={(e) => setNewVolumeTitle(e.target.value)}
                     placeholder="Ví dụ: Quyển 2: Loạn Thế Tương Phùng..."
-                    className="w-full px-3 py-2 rounded-lg border border-amber-300  bg-white   text-xs font-medium focus:outline-none"
+                    className="w-full px-3 py-2 rounded-lg border border-zinc-300 bg-white   text-xs font-medium focus:outline-none"
                   />
                   <div className="flex gap-2 justify-end">
                     <button
@@ -409,7 +409,7 @@ Chiếc bình nhỏ màu xanh lục bảo trong đan điền khẽ rung lên, m�
                     <button
                       type="button"
                       onClick={handleCreateNewVolume}
-                      className="px-3 py-1 bg-zinc-900 hover:bg-zinc-800  :bg-zinc-200  text-white text-white rounded-lg text-[11px] font-bold shadow-sm"
+                      className="px-3 py-1 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg text-[11px] font-bold shadow-sm"
                     >
                       Lưu quyển
                     </button>
@@ -419,7 +419,7 @@ Chiếc bình nhỏ màu xanh lục bảo trong đan điền khẽ rung lên, m�
                 <select
                   value={selectedVolumeId}
                   onChange={(e) => setSelectedVolumeId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200   bg-zinc-50   text-sm font-medium text-zinc-900  focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200   bg-zinc-50   text-sm font-medium text-zinc-900  focus:outline-none focus:ring-1 focus:ring-zinc-400 transition-all"
                 >
                   {currentStory?.volumes.map((vol) => (
                     <option key={vol.id} value={vol.id}>
@@ -458,7 +458,7 @@ Chiếc bình nhỏ màu xanh lục bảo trong đan điền khẽ rung lên, m�
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800  :bg-zinc-200  text-white hover:bg-zinc-800 active:scale-98 text-white font-bold text-sm shadow-md shadow-amber-500/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white active:scale-98 font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <Upload className={`w-4 h-4 ${submitting ? "animate-bounce" : ""}`} />
                 <span>{submitting ? "Đang đăng chương..." : "Đăng chương ngay"}</span>

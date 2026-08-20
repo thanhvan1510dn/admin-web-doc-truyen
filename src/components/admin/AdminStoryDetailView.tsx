@@ -312,8 +312,8 @@ export const AdminStoryDetailView: React.FC<AdminStoryDetailViewProps> = ({
 
           {/* Warning */}
           {story.warning && (
-            <div className="p-3.5 rounded-xl bg-amber-50/60 border border-amber-200/60 text-xs text-amber-900 space-y-1">
-              <span className="font-bold uppercase tracking-wider text-[11px] text-amber-800">Warning (Cảnh báo trước khi đọc):</span>
+            <div className="p-3.5 rounded-xl bg-stone-100 border border-stone-200 text-xs text-stone-800 space-y-1">
+              <span className="font-bold uppercase tracking-wider text-[11px] text-stone-900">Lưu ý / Cảnh báo độc giả:</span>
               <p className="leading-relaxed">{story.warning}</p>
             </div>
           )}

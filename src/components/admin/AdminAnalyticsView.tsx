@@ -304,8 +304,8 @@ export const AdminAnalyticsView: React.FC<{
                       r={isHovered ? 6 : 3.5}
                       className={`transition-all ${
                         isHovered
-                          ? "fill-amber-500 stroke-white stroke-2 shadow-lg"
-                          : "fill-white  stroke-amber-500 stroke-2"
+                          ? "fill-zinc-900 stroke-white stroke-2 shadow-lg"
+                          : "fill-white stroke-zinc-900 stroke-2"
                       }`}
                     />
 
@@ -315,7 +315,7 @@ export const AdminAnalyticsView: React.FC<{
                         x={cx}
                         y={chartHeight - 8}
                         textAnchor="middle"
-                        className="text-[10px] fill-slate-400  font-medium"
+                        className="text-[10px] fill-slate-400 font-medium"
                       >
                         {point.label}
                       </text>
@@ -331,21 +331,21 @@ export const AdminAnalyticsView: React.FC<{
       {/* Two Columns: Top Stories Performance & Live Reader Activity Stream */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Column 1: Top Read Stories */}
-        <div className="p-5 sm:p-6 rounded-2xl bg-white   border border-zinc-200/80   shadow-sm">
+        <div className="p-5 sm:p-6 rounded-2xl bg-white border border-zinc-200/80 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-bold text-base text-zinc-900  flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-zinc-900 " />
+              <h3 className="font-bold text-base text-zinc-900 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-zinc-900" />
                 <span>Truyện đọc nhiều nhất</span>
               </h3>
-              <p className="text-xs text-zinc-500  mt-0.5">
+              <p className="text-xs text-zinc-500 mt-0.5">
                 Xếp hạng theo tổng lượt xem và mức độ tương tác
               </p>
             </div>
             {onNavigateTab && (
               <button
                 onClick={() => onNavigateTab("stories")}
-                className="text-xs font-semibold text-zinc-900   hover:underline flex items-center gap-1"
+                className="text-xs font-semibold text-zinc-900 hover:underline flex items-center gap-1"
               >
                 <span>Xem tất cả</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
@@ -362,17 +362,17 @@ export const AdminAnalyticsView: React.FC<{
                 <div
                   key={story.storyId}
                   onClick={() => onSelectStory && onSelectStory(story.storyId)}
-                  className="p-3 rounded-xl hover:bg-zinc-50 :bg-zinc-100  transition-colors cursor-pointer border border-transparent hover:border-zinc-200 :border-zinc-300 "
+                  className="p-3 rounded-xl hover:bg-zinc-50 transition-colors cursor-pointer border border-transparent hover:border-zinc-200"
                 >
                   <div className="flex items-center gap-3">
                     <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-black ${
                       index === 0
-                        ? "bg-zinc-900  text-white  text-white shadow-sm"
+                        ? "bg-zinc-900 text-white shadow-sm"
                         : index === 1
-                        ? "bg-slate-300  text-zinc-800 "
+                        ? "bg-zinc-300 text-zinc-800"
                         : index === 2
-                        ? "bg-amber-700/20 text-amber-700 "
-                        : "bg-zinc-100   text-zinc-500"
+                        ? "bg-zinc-200 text-zinc-700"
+                        : "bg-zinc-100 text-zinc-500"
                     }`}>
                       {index + 1}
                     </span>

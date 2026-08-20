@@ -408,7 +408,7 @@ export const AdminStoryModal: React.FC<AdminStoryModalProps> = ({
               <label className="block text-xs font-semibold text-zinc-700">
                 Văn án (Tóm tắt / Giới thiệu nội dung truyện)
               </label>
-              <span className="text-[10px] text-amber-600 font-medium">
+              <span className="text-[10px] text-zinc-500 font-medium">
                 Hỗ trợ gán link: https://... hoặc [Tên link](https://...)
               </span>
             </div>
