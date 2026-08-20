@@ -445,7 +445,7 @@ export const AdminStoryModal: React.FC<AdminStoryModalProps> = ({
                   onChange={(e) => setIsActive(e.target.checked)}
                   className="rounded text-zinc-900 w-4 h-4"
                 />
-                <span>Hiển thị trên Web Đọc (Active)</span>
+                <span>Hiển thị công khai trên Web Đọc</span>
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer select-none text-zinc-700">
@@ -455,7 +455,7 @@ export const AdminStoryModal: React.FC<AdminStoryModalProps> = ({
                   onChange={(e) => setHot(e.target.checked)}
                   className="rounded text-zinc-900 w-4 h-4"
                 />
-                <span>Huy hiệu HOT 🔥</span>
+                <span>Đánh dấu Nổi bật 🔥</span>
               </label>
             </div>
           </div>

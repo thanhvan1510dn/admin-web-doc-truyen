@@ -217,7 +217,7 @@ export const AdminStoryListView: React.FC<AdminStoryListViewProps> = ({
                               </h4>
                               {story.hot && (
                                 <span className="px-1.5 py-0.5 rounded bg-zinc-900 text-white text-[10px] font-bold">
-                                  HOT
+                                  Nổi bật
                                 </span>
                               )}
                             </div>

@@ -75,10 +75,10 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
             <Lock className="w-7 h-7" />
           </div>
           <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
-            Đăng Nhập Super Admin
+            Đăng Nhập Quản Trị Hệ Thống
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs mx-auto leading-relaxed">
-            Khu vực dành riêng cho Chủ sở hữu hệ thống Quản trị Web Đọc Truyện.
+            Khu vực dành riêng cho Chủ sở hữu và Quản trị viên Web Đọc Truyện.
           </p>
         </div>
 
@@ -94,7 +94,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
           {/* Username Input */}
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-              Tài khoản Super Admin
+              Tài khoản Quản trị
             </label>
             <input
               type="text"
@@ -149,7 +149,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
               <span>Ghi nhớ phiên đăng nhập</span>
             </label>
             <span className="text-[11px] text-zinc-600 dark:text-zinc-400 font-semibold">
-              Bảo mật 1 chủ sở hữu
+              Bảo mật hệ thống
             </span>
           </div>
 
@@ -159,7 +159,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
             disabled={loading}
             className="w-full py-3 rounded-xl bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-100 dark:text-zinc-900 text-white active:scale-98 font-bold text-xs uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
           >
-            <span>{loading ? "Đang xác thực..." : "Đăng nhập Super Admin"}</span>
+            <span>{loading ? "Đang xác thực..." : "Đăng nhập Quản trị"}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
 
@@ -174,7 +174,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
               }}
               className="px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-[11px] font-bold text-zinc-700 dark:text-zinc-300 transition-colors border border-zinc-300 dark:border-zinc-700"
             >
-              👑 Điền nhanh tài khoản Super Admin (admin / admin123)
+              👑 Điền nhanh tài khoản Quản trị (admin / admin123)
             </button>
           </div>
         </form>

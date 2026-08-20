@@ -450,8 +450,8 @@ Chiếc bình nhỏ màu xanh lục bảo trong đan điền khẽ rung lên, m�
                     }`}
                   />
                 </button>
-                <span className="text-xs font-semibold text-zinc-700 ">
-                  {isActive ? "🟢 Xuất bản ngay (Active)" : "⚪ Lưu nháp ẩn (Inactive)"}
+                <span className="text-xs font-semibold text-zinc-700">
+                  {isActive ? "🟢 Xuất bản công khai" : "⚪ Lưu dạng bản nháp"}
                 </span>
               </div>
 

@@ -222,7 +222,7 @@ export const AdminStoryDetailView: React.FC<AdminStoryDetailViewProps> = ({
               </h2>
               {story.hot && (
                 <span className="px-2 py-0.5 rounded-md bg-zinc-900 text-white text-[10px] font-bold">
-                  HOT
+                  Nổi bật
                 </span>
               )}
             </div>
