@@ -489,20 +489,21 @@ export const AdminPDFUploadStudio: React.FC<AdminPDFUploadStudioProps> = ({ stor
             setSavingProgress((prev) => ({ ...prev, active: false }));
             toast.success("Đã lưu truyện " + res.data.title + " thành công!");
             if (onSuccess) onSuccess(res.data.id);
-          }, 1200);
+          }, 1800);
         } else {
           setSavingProgress((prev) => ({ ...prev, active: false }));
           toast.error(res.error || "Không thể nạp truyện");
         }
       } else {
-        if (!selectedStoryId) {
+        const targetStoryId = selectedStoryId || storyId || (stories.length > 0 ? stories[0].id : "");
+        if (!targetStoryId) {
           toast.error("Vui lòng chọn truyện đích");
           setIsSaving(false);
           setSavingProgress((prev) => ({ ...prev, active: false }));
           return;
         }
         const res = await storyApi.importParsedVolumes(
-          selectedStoryId,
+          targetStoryId,
           parseResult.volumes,
           replaceExisting,
           onProgress
@@ -517,8 +518,8 @@ export const AdminPDFUploadStudio: React.FC<AdminPDFUploadStudioProps> = ({ stor
           setTimeout(() => {
             setSavingProgress((prev) => ({ ...prev, active: false }));
             toast.success(`Đã nạp ${parseResult.totalVolumes} Mục lục vào truyện thành công!`);
-            if (onSuccess) onSuccess(selectedStoryId);
-          }, 1200);
+            if (onSuccess) onSuccess(targetStoryId);
+          }, 1800);
         } else {
           setSavingProgress((prev) => ({ ...prev, active: false }));
           toast.error(res.error || "Không thể nạp dữ liệu");
@@ -968,112 +969,131 @@ export const AdminPDFUploadStudio: React.FC<AdminPDFUploadStudioProps> = ({ stor
             </div>
           </div>
 
-          {/* 5. NÚT XÁC NHẬN NẠP DUY NHẤT (STICKY BOTTOM BAR) */}
-          <div className="pt-2 sticky bottom-3 z-10">
-            <div className="p-3.5 rounded-2xl bg-zinc-900/95 dark:bg-white/95 backdrop-blur-md shadow-xl text-white dark:text-zinc-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-zinc-800 dark:border-zinc-200">
-              <div className="text-xs">
-                <div className="font-bold flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 dark:text-emerald-600" />
-                  <span>Sẵn sàng nạp {parseResult.totalVolumes} Mục lục ({parseResult.totalChapters} chương)</span>
+          {/* 5. NÚT XÁC NHẬN NẠP DUY NHẤT & TIẾN TRÌNH ĐỒNG BỘ IN-PLACE (STICKY BOTTOM BAR) */}
+          <div className="pt-3 sticky bottom-4 z-40 animate-in slide-in-from-bottom-3 duration-300">
+            <div
+              className={`p-4 rounded-2xl shadow-2xl transition-all duration-300 relative overflow-hidden backdrop-blur-md border ${
+                isSaving || savingProgress.active
+                  ? "bg-zinc-950 text-white border-emerald-500/50 ring-2 ring-emerald-500/25 shadow-emerald-950/50"
+                  : "bg-zinc-900/95 dark:bg-white/95 text-white dark:text-zinc-900 border-zinc-800 dark:border-zinc-200"
+              }`}
+            >
+              {/* Progress Line Track at the very top of the bar */}
+              {(isSaving || savingProgress.active) && (
+                <div className="absolute top-0 left-0 right-0 h-1.5 bg-zinc-800/80 overflow-hidden">
+                  <div
+                    className={`h-full transition-all duration-300 ease-out ${
+                      savingProgress.isSuccess
+                        ? "bg-emerald-400"
+                        : "bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-300"
+                    }`}
+                    style={{ width: `${Math.max(5, savingProgress.percent)}%` }}
+                  />
                 </div>
-                <p className="text-zinc-400 dark:text-zinc-600 text-[11px] mt-0.5">
-                  {storyId ? (
-                    !replaceExisting ? (
-                      `✓ Sẽ gộp tiếp nối vào "${currentStoryObj?.title || "truyện"}" (an toàn)`
+              )}
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                {/* Left section: Status & Details */}
+                <div className="text-xs min-w-0 flex items-center gap-3">
+                  {isSaving || savingProgress.active ? (
+                    savingProgress.isSuccess ? (
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 animate-in zoom-in-75 shadow-md shadow-emerald-500/30">
+                        <CheckCircle2 className="w-6 h-6" />
+                      </div>
                     ) : (
-                      `⚠️ Cảnh báo: Sẽ ghi đè toàn bộ truyện "${currentStoryObj?.title || "truyện"}"`
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0 border border-emerald-500/30">
+                        <RefreshCw className="w-5 h-5 animate-spin" />
+                      </div>
                     )
                   ) : (
-                    targetMode === "new" ? "Tạo truyện mới trên hệ thống" : "Nạp vào truyện đích đã chọn"
+                    <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 dark:text-emerald-600 flex items-center justify-center flex-shrink-0">
+                      <CheckCircle2 className="w-4 h-4" />
+                    </div>
                   )}
-                </p>
-              </div>
 
-              <button
-                onClick={handleConfirmImport}
-                disabled={isSaving}
-                className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-md disabled:opacity-50 flex-shrink-0"
-              >
-                {isSaving ? (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Đang lưu...
-                  </>
-                ) : (
-                  <>
-                    <ArrowRight className="w-3.5 h-3.5" /> Xác nhận nạp {parseResult.totalVolumes} Mục lục
-                  </>
-                )}
-              </button>
+                  <div className="min-w-0">
+                    {isSaving || savingProgress.active ? (
+                      <div>
+                        <div className="font-bold text-sm flex items-center gap-2">
+                          <span className={savingProgress.isSuccess ? "text-emerald-400" : "text-white"}>
+                            {savingProgress.isSuccess
+                              ? `✓ Đã nạp thành công ${parseResult.totalVolumes} Mục lục!`
+                              : `Đang nạp ${parseResult.totalVolumes} Mục lục (${parseResult.totalChapters} chương)...`}
+                          </span>
+                        </div>
+                        <p className="text-emerald-400/90 text-xs mt-0.5 truncate font-medium flex items-center gap-1.5">
+                          {!savingProgress.isSuccess && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          )}
+                          {savingProgress.message || "Đang đồng bộ dữ liệu vào hệ thống..."}
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="font-bold flex items-center gap-1.5 text-white dark:text-zinc-900">
+                          <span>Sẵn sàng nạp {parseResult.totalVolumes} Mục lục ({parseResult.totalChapters} chương)</span>
+                        </div>
+                        <p className="text-zinc-400 dark:text-zinc-600 text-[11px] mt-0.5 truncate">
+                          {storyId ? (
+                            !replaceExisting ? (
+                              `✓ Sẽ gộp tiếp nối vào "${currentStoryObj?.title || "truyện"}" (an toàn)`
+                            ) : (
+                              `⚠️ Cảnh báo: Sẽ ghi đè toàn bộ truyện "${currentStoryObj?.title || "truyện"}"`
+                            )
+                          ) : (
+                            targetMode === "new" ? "Tạo truyện mới trên hệ thống" : "Nạp vào truyện đích đã chọn"
+                          )}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right section: Button or Live Percentage */}
+                <div className="flex items-center gap-3 justify-end flex-shrink-0">
+                  {isSaving || savingProgress.active ? (
+                    <div className="flex items-center gap-3">
+                      {/* Big Live Monospace Percentage */}
+                      <div className="text-right">
+                        <span className="text-[10px] text-zinc-400 uppercase tracking-wider block font-semibold">
+                          Tiến trình
+                        </span>
+                        <span className="text-2xl sm:text-3xl font-black font-mono text-emerald-400 tracking-tight leading-none drop-shadow">
+                          {savingProgress.percent}%
+                        </span>
+                      </div>
+
+                      {/* State Button */}
+                      {savingProgress.isSuccess ? (
+                        <div className="px-5 py-2.5 rounded-xl bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-emerald-500/30 animate-in zoom-in-95">
+                          <Check className="w-4 h-4 stroke-[3]" /> Hoàn tất ✓
+                        </div>
+                      ) : (
+                        <div className="px-4 py-2.5 rounded-xl bg-zinc-900 border border-emerald-500/40 text-emerald-300 font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-inner">
+                          <RefreshCw className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+                          Đang lưu...
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <button
+                      onClick={handleConfirmImport}
+                      disabled={isSaving}
+                      className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-md disabled:opacity-50 flex-shrink-0 cursor-pointer"
+                    >
+                      <ArrowRight className="w-3.5 h-3.5" /> Xác nhận nạp {parseResult.totalVolumes} Mục lục
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* 6. MODAL TIẾN TRÌNH NẠP TRUYỆN TRỰC QUAN (% & STATUS) */}
-      {savingProgress.active && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 text-center transform scale-100 transition-all">
-            {/* Icon hoạt họa */}
-            <div className="relative mx-auto w-16 h-16 flex items-center justify-center">
-              {savingProgress.isSuccess ? (
-                <div className="w-16 h-16 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 animate-in zoom-in-75 duration-300">
-                  <CheckCircle2 className="w-9 h-9" />
-                </div>
-              ) : (
-                <div className="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white flex items-center justify-center shadow-inner">
-                  <RefreshCw className="w-8 h-8 animate-spin text-emerald-500" />
-                </div>
-              )}
-            </div>
-
-            {/* Tiêu đề & Thông tin */}
-            <div className="space-y-1.5">
-              <h3 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-white">
-                {savingProgress.isSuccess ? "Nạp dữ liệu thành công!" : "Đang nạp truyện vào hệ thống"}
-              </h3>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                {savingProgress.isSuccess
-                  ? `Toàn bộ ${savingProgress.totalVolumes} Mục lục (${savingProgress.totalChapters} chương) đã sẵn sàng`
-                  : `Đang lưu ${savingProgress.totalVolumes} Mục lục (${savingProgress.totalChapters} chương) vào "${currentStoryObj?.title || "truyện"}"`}
-              </p>
-            </div>
-
-            {/* Progress Bar & Percentage */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs font-semibold">
-                <span className="text-zinc-500 font-mono">Tiến trình</span>
-                <span className="text-emerald-600 dark:text-emerald-400 font-bold font-mono text-sm">
-                  {savingProgress.percent}%
-                </span>
-              </div>
-
-              {/* Thanh track */}
-              <div className="w-full bg-zinc-100 dark:bg-zinc-800 h-3 rounded-full overflow-hidden p-0.5 border border-zinc-200/60 dark:border-zinc-700/60">
-                <div
-                  className={`h-full rounded-full transition-all duration-300 ease-out ${
-                    savingProgress.isSuccess ? "bg-emerald-500" : "bg-gradient-to-r from-emerald-500 to-teal-400"
-                  }`}
-                  style={{ width: `${Math.max(5, savingProgress.percent)}%` }}
-                />
-              </div>
-
-              {/* Thông điệp chi tiết từng bước */}
-              <p className="text-[11px] text-zinc-500 font-medium truncate pt-1">
-                {savingProgress.message}
-              </p>
-            </div>
-
-            {/* Lời nhắc nhở an toàn */}
-            {!savingProgress.isSuccess && (
-              <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
-                <p className="text-[11px] text-zinc-400 flex items-center justify-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
-                  Vui lòng không đóng trình duyệt trong khi đang đồng bộ
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
+      {/* Subtle focus backdrop when saving */}
+      {(isSaving || savingProgress.active) && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-[1px] pointer-events-none z-30 animate-in fade-in duration-200" />
       )}
     </div>
   );
