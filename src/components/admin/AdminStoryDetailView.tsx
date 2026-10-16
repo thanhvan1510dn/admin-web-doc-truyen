@@ -61,19 +61,20 @@ export const AdminStoryDetailView: React.FC<AdminStoryDetailViewProps> = ({
   // Delete Volume Target
   const [deleteVolumeTarget, setDeleteVolumeTarget] = useState<Volume | null>(null);
 
-  const loadStory = async () => {
-    setLoading(true);
+  const loadStory = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     const res = await storyApi.getStoryById(storyId, true);
     if (res.success && res.data) {
       setStory({ ...res.data });
     }
-    setLoading(false);
+    if (showLoading) setLoading(false);
   };
 
   useEffect(() => {
     loadStory();
     const unsub = storyApi.subscribe(() => {
-      loadStory();
+      // Silent background refresh to avoid unmounting active upload studio
+      loadStory(false);
     });
     return () => unsub();
   }, [storyId]);

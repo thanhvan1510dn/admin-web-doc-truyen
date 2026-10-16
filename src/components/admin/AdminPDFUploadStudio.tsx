@@ -442,12 +442,15 @@ export const AdminPDFUploadStudio: React.FC<AdminPDFUploadStudioProps> = ({ stor
     setIsSaving(true);
     setSavingProgress({
       active: true,
-      percent: 5,
-      message: "Bắt đầu chuẩn bị nạp dữ liệu...",
+      percent: 10,
+      message: "Đang chuẩn bị nạp dữ liệu vào hệ thống...",
       isSuccess: false,
       totalVolumes: parseResult.totalVolumes,
       totalChapters: parseResult.totalChapters,
     });
+
+    // Nhả event loop 60ms để React commit & trình duyệt repaint giao diện tiến trình ngay tức thì!
+    await new Promise((resolve) => setTimeout(resolve, 60));
 
     const onProgress = (percent: number, message: string) => {
       setSavingProgress((prev) => ({
