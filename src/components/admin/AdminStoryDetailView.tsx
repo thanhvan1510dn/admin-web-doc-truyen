@@ -105,21 +105,18 @@ export const AdminStoryDetailView: React.FC<AdminStoryDetailViewProps> = ({
     setEditContent(chapter.content || "");
     setEditActive(chapter.isActive !== false);
 
-    // If chapter content is empty (e.g. lazy-loaded from subcollection), fetch full text from Cloud immediately!
-    if (!chapter.content || chapter.content.trim().length === 0) {
-      setIsLoadingChapterContent(true);
-      try {
-        const res = await storyApi.getChapter(storyId, chapter.id, true);
-        if (res.success && res.data?.content) {
-          setEditContent(res.data.content);
-          chapter.content = res.data.content;
-        }
-      } catch (err) {
-        console.error("Error fetching full chapter content:", err);
-      } finally {
-        setIsLoadingChapterContent(false);
+    // Luôn tải bản mới nhất từ Cloud để tránh hiển thị nội dung cũ
+    setIsLoadingChapterContent(!chapter.content);
+    storyApi.getChapter(storyId, chapter.id, true).then((res) => {
+      if (res.success && res.data?.content) {
+        setEditContent(res.data.content);
+        chapter.content = res.data.content;
       }
-    }
+    }).catch((err) => {
+      console.error("Error fetching full chapter content:", err);
+    }).finally(() => {
+      setIsLoadingChapterContent(false);
+    });
   };
 
   const handleSaveChapter = async (e: React.FormEvent) => {
